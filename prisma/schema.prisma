@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  telegramId   BigInt   @unique @map("telegram_id")
+  username     String?
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  languageCode String?  @map("language_code")
+  isBot        Boolean  @default(false) @map("is_bot")
+  isBlocked    Boolean  @default(false) @map("is_blocked")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  title     String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  subcategories Subcategory[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @map("category_id")
+  key        String
+  title      String
+  order      Int      @default(0)
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  @@unique([categoryId, key])
+  @@map("subcategories")
+}
+
+model Lesson {
+  id            Int      @id @default(autoincrement())
+  subcategoryId Int      @map("subcategory_id")
+  title         String
+  description   String?
+  order         Int      @default(0)
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  subcategory Subcategory  @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  files       LessonFile[]
+
+  @@map("lessons")
+}
+
+model LessonFile {
+  id        Int      @id @default(autoincrement())
+  lessonId  Int      @map("lesson_id")
+  fileId    String   @map("file_id")       // Telegram file_id
+  fileName  String?  @map("file_name")
+  fileType  FileType @map("file_type")     // document | video | audio | photo
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("lesson_files")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum FileType {
+  DOCUMENT
+  VIDEO
+  AUDIO
+  PHOTO
+}
