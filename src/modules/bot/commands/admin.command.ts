@@ -68,7 +68,7 @@ export class AdminCommand {
   @Action(/admin:cat:(\d+)/)
   async onCategoryDetail(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const catId = parseInt((ctx.match as any)[1]);
+    const catId = parseInt(ctx.match[1]);
     const cat = await this.contentService.getCategoryById(catId);
     const subs = await this.contentService.getAllSubcategories(catId);
 
@@ -90,7 +90,7 @@ export class AdminCommand {
   @Action(/admin:sub:(\d+)/)
   async onSubcategoryDetail(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const subId = parseInt((ctx.match as any)[1]);
+    const subId = parseInt(ctx.match[1]);
     const lessons = await this.contentService.getAllLessons(subId);
 
     const buttons = lessons.map((l) => [
@@ -111,7 +111,7 @@ export class AdminCommand {
   @Action(/admin:lesson:(\d+)/)
   async onLessonDetail(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const lessonId = parseInt((ctx.match as any)[1]);
+    const lessonId = parseInt(ctx.match[1]);
     const lesson = await this.contentService.getLessonById(lessonId);
     const files = lesson.files;
 
@@ -140,7 +140,7 @@ export class AdminCommand {
   @Action(/admin:upload:(\d+)/)
   async onUploadMode(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const lessonId = parseInt((ctx.match as any)[1]);
+    const lessonId = parseInt(ctx.match[1]);
     ctx.session.data = { uploadLessonId: lessonId };
     ctx.session.state = { ...ctx.session.state, mode: 'upload' } as any;
 
@@ -206,8 +206,8 @@ export class AdminCommand {
   @Action(/admin:del_file:(\d+):(\d+)/)
   async onDeleteFile(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const fileId = parseInt((ctx.match as any)[1]);
-    const lessonId = parseInt((ctx.match as any)[2]);
+    const fileId = parseInt(ctx.match[1]);
+    const lessonId = parseInt(ctx.match[2]);
     await this.contentService.deleteFile(fileId);
     await ctx.answerCbQuery('🗑 Fayl o\'chirildi');
     // Refresh lesson view
@@ -219,7 +219,7 @@ export class AdminCommand {
   @Action(/admin:del_lesson:(\d+)/)
   async onDeleteLesson(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const lessonId = parseInt((ctx.match as any)[1]);
+    const lessonId = parseInt(ctx.match[1]);
     const lesson = await this.contentService.getLessonById(lessonId);
     const subId = lesson.subcategoryId;
     await this.contentService.deleteLesson(lessonId);
@@ -235,7 +235,7 @@ export class AdminCommand {
   @Action(/admin:del_sub:(\d+)/)
   async onDeleteSub(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const subId = parseInt((ctx.match as any)[1]);
+    const subId = parseInt(ctx.match[1]);
     const subs = await this.contentService.getAllSubcategories(0);
     await this.contentService.deleteSubcategory(subId);
     await ctx.editMessageText(`✅ Bo'lim o'chirildi.`, {
@@ -250,7 +250,7 @@ export class AdminCommand {
   @Action(/admin:del_cat:(\d+)/)
   async onDeleteCat(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const catId = parseInt((ctx.match as any)[1]);
+    const catId = parseInt(ctx.match[1]);
     await this.contentService.deleteCategory(catId);
     await ctx.editMessageText(`✅ Kategoriya o'chirildi.`, {
       ...Markup.inlineKeyboard([
@@ -272,7 +272,7 @@ export class AdminCommand {
   @Action(/admin:add_sub:(\d+)/)
   async onAddSub(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const catId = parseInt((ctx.match as any)[1]);
+    const catId = parseInt(ctx.match[1]);
     ctx.session.data = { inputType: 'subcategory', catId };
     await ctx.reply(`📝 Yangi bo'lim nomini kiriting:\n\nBekor qilish: /cancel`);
   }
@@ -281,7 +281,7 @@ export class AdminCommand {
   @Action(/admin:add_lesson:(\d+)/)
   async onAddLesson(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const subId = parseInt((ctx.match as any)[1]);
+    const subId = parseInt(ctx.match[1]);
     ctx.session.data = { inputType: 'lesson', subId };
     await ctx.reply(`📝 Yangi dars nomini kiriting:\n\nBekor qilish: /cancel`);
   }
@@ -309,13 +309,13 @@ export class AdminCommand {
   @Action(/admin:cat_back:(\d+)/)
   async onCatBack(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const subId = parseInt((ctx.match as any)[1]);
+    const subId = parseInt(ctx.match[1]);
     const sub = await this.contentService.getAllSubcategories(0);
     // find sub to get catId
     const allSubs = await this.prisma_findSubById(subId);
     if (allSubs) {
       // trigger cat detail
-      (ctx.match as any)[1] = allSubs.categoryId.toString();
+      ctx.match[1] = allSubs.categoryId.toString();
       await this.onCategoryDetail(ctx);
     }
   }
@@ -324,9 +324,9 @@ export class AdminCommand {
   @Action(/admin:lesson_back:(\d+)/)
   async onLessonBack(@Ctx() ctx: BotContext) {
     await ctx.answerCbQuery();
-    const lessonId = parseInt((ctx.match as any)[1]);
+    const lessonId = parseInt(ctx.match[1]);
     const lesson = await this.contentService.getLessonById(lessonId);
-    (ctx.match as any)[1] = lesson.subcategoryId.toString();
+    ctx.match[1] = lesson.subcategoryId.toString();
     await this.onSubcategoryDetail(ctx);
   }
 
