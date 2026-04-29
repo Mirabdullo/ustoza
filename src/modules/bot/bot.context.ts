@@ -5,6 +5,7 @@ export interface NavState {
   categoryTitle?: string;
   subcategoryId?: number;
   subcategoryTitle?: string;
+  mode?: string;
 }
 
 export interface BotSession extends Scenes.SceneSession {
@@ -16,4 +17,5 @@ export interface BotSession extends Scenes.SceneSession {
 export interface BotContext extends TelegrafContext {
   session: BotSession;
   scene: Scenes.SceneContextScene<BotContext, BotSession>;
+  match: RegExpExecArray;
 }
